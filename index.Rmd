@@ -1,5 +1,5 @@
 --- 
-title: 'Untirta dalam Angka: semester genap TA 2019/2020'
+title: 'Untirta dalam Angka: semester ganjil TA 2020/2021'
 author: "oleh Subbagian Registrasi dan Statistik"
 date: "`r Sys.Date()`"
 output:
@@ -20,7 +20,7 @@ biblio-style: apalike
 
 ## Mahasiswa Baru
 
-Tahun 2019 Universitas Sultan Ageng Tirtayasa secara resmi menerima 4.134 mahasiswa baru jenjang S1 dan D3. Berikut adalah statistik mahasiswa baru Universitas Sultan Ageng Tirtayasa tahun akademik 2019/2020.
+Tahun 2020 Universitas Sultan Ageng Tirtayasa secara resmi menerima X.XXX mahasiswa baru jenjang S1 dan D3. Berikut adalah statistik mahasiswa baru Universitas Sultan Ageng Tirtayasa tahun akademik 2020/2021.
 
 > Mahasiswa Baru Berdasarkan Jalur Masuk dan Jenis Kelamin.
 
@@ -144,7 +144,7 @@ kable(pend) %>%
 ## Mahasiswa Aktif
 
 
-> Mahasiswa aktif di semester genap Tahun Akademik 2019/2020
+> Mahasiswa aktif di semester ganjil Tahun Akademik 2020/2021
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 aktif <- read.csv("static/aktif.csv")
