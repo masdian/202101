@@ -20,25 +20,36 @@ biblio-style: apalike
 
 ## Mahasiswa Baru
 
-Tahun 2020 Universitas Sultan Ageng Tirtayasa secara resmi menerima X.XXX mahasiswa baru jenjang S1 dan D3. Berikut adalah statistik mahasiswa baru Universitas Sultan Ageng Tirtayasa tahun akademik 2020/2021.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(kableExtra)
+library(readxl)
+maba <- read_excel("static/maba.xlsx")
+d3 <- nrow(filter(maba, JENJANG == "D3"))
+s1 <- nrow(filter(maba, JENJANG == "S1"))
+s2 <- nrow(filter(maba, JENJANG == "S2"))
+s3 <- nrow(filter(maba, JENJANG == "S3"))
+
+
+```
+
+Tahun 2020 Universitas Sultan Ageng Tirtayasa secara resmi menerima `r nrow(maba)` mahasiswa baru terdiri atas `r d3` mahasiswa D3, `r s1` mahasiswa S1, `r s2` mahasiswa S2, dan `r s3` mahasiswa S3. Berikut adalah statistik mahasiswa baru Universitas Sultan Ageng Tirtayasa tahun akademik 2020/2021.
 
 > Mahasiswa Baru Berdasarkan Jalur Masuk dan Jenis Kelamin.
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
-library(janitor)
-library(kableExtra)
-maba <- read.csv("static/maba.csv")
 jk <- maba %>%
   group_by(JALUR, JK) %>%
   summarize(total = n()) %>%
   pivot_wider(names_from = JALUR, values_from = total)
+jk[is.na(jk)] <- 0
 names(jk) <- c("Jenis Kelamin", "SNMPTN", "SBMPTN", "SMMPTN",
-               "UMM", "ADIK")
+               "UMM", "Alih Jenjang", "ADIK", "Pascasarjana")
 jk <- adorn_totals(jk, where = c("col", "row"), name = "Jumlah")
 kable(jk) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F) %>%
-  add_header_above(c(" " = 1, "Jalur Masuk" = 5, " " = 1))
+  kable_styling(bootstrap_options = "striped", full_width = F, font_size = 10) %>%
+  add_header_above(c(" " = 1, "Jalur Masuk" = 7, " " = 1))
 ```
 
 > Mahasiswa Baru Berdasarkan Jalur Masuk di Setiap Fakultas.
@@ -49,39 +60,39 @@ fak <- maba %>%
   summarize(total = n()) %>%
   pivot_wider(names_from = JALUR, values_from = total)
 names(fak) <- c("Fakultas", "SNMPTN", "SBMPTN", "SMMPTN",
-                "UMM", "ADIK")
+                "UMM", "Alih Jenjang", "ADIK", "Pascasarjana")
 fak[is.na(fak)] <- 0
 fak$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian",
-                  "FEB", "FISIP", "Kedokteran")
+                  "FEB", "FISIP", "Kedokteran", "Pascasarjana")
 fak <- adorn_totals(fak, where = c("row", "col"), name = "Jumlah")
 kable(fak) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F) %>%
-  add_header_above(c(" " = 1, "Jalur Masuk" = 5, " " = 1))
+  kable_styling(bootstrap_options = "striped", full_width = F, font_size = 10) %>%
+  add_header_above(c(" " = 1, "Jalur Masuk" = 7, " " = 1))
 ```
 
 > Mahasiswa Baru Berdasarkan Jalur Masuk di Setiap Program Studi.
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
 prod <- maba %>%
-  group_by(JALUR, FAKULTAS, PROGRAM.STUDI) %>%
+  group_by(JALUR, FAKULTAS, `PROGRAM STUDI`) %>%
   summarize(total = n()) %>%
   pivot_wider(names_from = JALUR, values_from = total) %>%
   arrange(FAKULTAS)
 prod <- prod[,-1]
 prod[is.na(prod)] <- 0
-names(prod) <- c("Fakultas/Program Studi", "SNMPTN", "SBMPTN", "SMMPTN",
-                "UMM", "ADIK")
+names(prod) <- c("Fakultas/Program Studi", "SNMPTN", "SBMPTN", "SMMPTN", "UMM", "Alih Jenjang", "ADIK", "Pascasarjana")
 prod <- adorn_totals(prod, where = c("row", "col"), name = "Jumlah")
 kable(prod) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F) %>%
-  add_header_above(c(" " = 1, "Jalur Masuk" = 5, " " = 1)) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, font_size = 10) %>%
+  add_header_above(c(" " = 1, "Jalur Masuk" = 7, " " = 1)) %>%
   pack_rows("Hukum", 1, 1, label_row_css = "background-color: #666; color: #fff;") %>%
   pack_rows("FKIP", 2, 19, label_row_css = "background-color: #666; color: #fff;") %>%
   pack_rows("Teknik", 20, 25, label_row_css = "background-color: #666; color: #fff;") %>%
   pack_rows("Pertanian", 26, 29, label_row_css = "background-color: #666; color: #fff;") %>%
   pack_rows("FEB", 30, 37, label_row_css = "background-color: #666; color: #fff;") %>%
   pack_rows("FISIP", 38, 40, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Kedokteran", 41, 44, label_row_css = "background-color: #666; color: #fff;")
+  pack_rows("Pascasarjana", 41, 51, label_row_css = "background-color: #666; color: #fff;") %>%
+pack_rows("Kedokteran", 52, 57, label_row_css = "background-color: #666; color: #fff;")
 ```
 
 > Mahasiswa Baru Berdasarkan Jalur Masuk dan Provinsi Asal Mahasiswa.
@@ -94,51 +105,52 @@ prov <- maba %>%
   arrange(PROVINSI)
 prov[is.na(prov)] <- 0
 names(prov) <- c("Provinsi", "SNMPTN", "SBMPTN", "SMMPTN",
-                 "UMM", "ADIK")
+                 "UMM", "Alih Jenjang", "ADIK", "Pascasarjana")
 prov <- adorn_totals(prov, where = c("row", "col"), name = "Jumlah")
 kable(prov) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F) %>%
-  add_header_above(c(" " = 1, "Jalur Masuk" = 5, " " = 1))
+  kable_styling(bootstrap_options = "striped", full_width = F, font_size = 10) %>%
+  add_header_above(c(" " = 1, "Jalur Masuk" = 7, " " = 1))
 ```
 
-> Mahasiswa Baru Berdasarkan Jalur Masuk dan Penghasilan Orang Tua.
+> Mahasiswa Baru (D3 dan S1) Berdasarkan Jalur Masuk dan Penghasilan Orang Tua.
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
 eko <- maba %>%
+  filter(JALUR != "7_Pascasarjana") %>%
   group_by(JALUR, PENGHASILAN) %>%
   summarize(total = n()) %>%
   pivot_wider(names_from = JALUR, values_from = total) %>%
   arrange(PENGHASILAN)
 eko[is.na(eko)] <- 0
 names(eko) <- c("Kategori Penghasilan", "SNMPTN", "SBMPTN", "SMMPTN",
-                 "UMM", "ADIK")
-eko$`Kategori Penghasilan` <- c("<= 500.000", "500.000 - 2.000.000",
+                 "UMM", "Alih Jenjang", "ADIK")
+eko$`Kategori Penghasilan` <- c("Tidak diketahui", "<= 500.000", "500.000 - 2.000.000",
                                 "2.000.000 - 3.500.000", "3.500.000 - 5.000.000",
                                 "5.000.000 - 10.000.000", "> 10.000.000")
 eko <- adorn_totals(eko, where = c("row", "col"), name = "Jumlah")
 kable(eko) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F) %>%
-  add_header_above(c(" " = 1, "Jalur Masuk" = 5, " " = 1))
+  kable_styling(bootstrap_options = "striped", full_width = F, font_size = 11) %>%
+  add_header_above(c(" " = 1, "Jalur Masuk" = 6, " " = 1))
 ```
 
 
-> Mahasiswa Baru Berdasarkan Jalur Masuk dan Pendidikan Terakhir Orang Tua.
+> Mahasiswa Baru (D3 dan S1) Berdasarkan Jalur Masuk dan Pendidikan Terakhir Orang Tua.
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
 pend <- maba %>%
+  filter(JALUR != "7_Pascasarjana") %>%
   group_by(JALUR, Pendidikan) %>%
   summarize(total = n()) %>%
   pivot_wider(names_from = JALUR, values_from = total) %>%
   arrange(Pendidikan)
 pend[is.na(pend)] <- 0
 names(pend) <- c("Pendidikan Terakhir", "SNMPTN", "SBMPTN", "SMMPTN",
-                 "UMM", "ADIK")
-pend$`Pendidikan Terakhir` <- c("SD", "SLTP", "SLTA", "D1", "D2", "D3",
-                                "D4", "S1", "S2", "S3", "Tidak diketahui")
+                 "UMM", "Alih Jenjang", "ADIK")
+pend$`Pendidikan Terakhir` <- c("Tidak diketahui", "Tidak tamat SD", "SD", "SLTP", "SLTA", "Diploma", "S1", "S2", "S3")
 pend <- adorn_totals(pend, where = c("row", "col"), name = "Jumlah")
 kable(pend) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F) %>%
-  add_header_above(c(" " = 1, "Jalur Masuk" = 5, " " = 1))
+  kable_styling(bootstrap_options = "striped", full_width = F, font_size = 11) %>%
+  add_header_above(c(" " = 1, "Jalur Masuk" = 6, " " = 1))
 ```
 
 ## Mahasiswa Aktif
