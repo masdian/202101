@@ -1,29 +1,36 @@
 # Dosen
 
-Saat ini Universitas Sultan Ageng Tirtayasa memiliki 618 dosen tetap PNS dan 150 dosen tetap non PNS yang tersebar di 6 Fakultas. Berikut ini adalah stasitik Dosen tetap PNS dan dosen tetap non PNS di lingkungan Universitas Sultan Ageng Tirtayasa.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2, warn.conflicts = F)
+library(dplyr, warn.conflicts = F)
+library(plotly, warn.conflicts = F)
+library(tidyverse)
+library(shiny)
+library(readxl)
+dos_pns <- read_excel("G:/My Drive/# REGISTRASI DAN STATISTIK/Website/202101/202101/static/SDM_dosen_pns.xlsx")
+dos_non <- read_excel("G:/My Drive/# REGISTRASI DAN STATISTIK/Website/202101/202101/static/SDM_dosen_non_pns.xlsx")
+```
+
+
+Saat ini Universitas Sultan Ageng Tirtayasa memiliki `r nrow(dos_pns)` dosen tetap PNS dan `r nrow(dos_non)` dosen tetap non PNS yang tersebar di 6 Fakultas. Berikut ini adalah stasitik Dosen tetap PNS dan dosen tetap non PNS di lingkungan Universitas Sultan Ageng Tirtayasa.
 
 ## Dosen PNS
 
 > Sebaran lengkap dosen PNS Universitas Sultan Ageng Tirtayasa di tiap fakultas.
 
 ```{r, echo=FALSE, out.width="60%", message=FALSE, warning=FALSE, fig.align='center'}
-library(ggplot2, warn.conflicts = F)
-library(dplyr, warn.conflicts = F)
-library(plotly, warn.conflicts = F)
-library(tidyverse)
-library(shiny)
 sdm <- read.csv("static/SDM.csv")
 dosen <- filter(sdm, STATUS == "Dosen PNS")
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(JK, FAKULTAS) %>%
   summarize(total = n()) %>%
   pivot_wider(names_from = JK, values_from = total)
-names(dos) <- c("Fakultas", "Laki-Laki", "Perempuan")
-dos$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+names(data) <- c("Fakultas", "Laki-Laki", "Perempuan")
+data$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
 ### agar sesuai urutan dibuat faktor dengan level yang berurutan
-dos$Fakultas <- factor(dos$Fakultas, levels = dos[["Fakultas"]])
+data$Fakultas <- factor(data$Fakultas, levels = data[["Fakultas"]])
 
-div(plot_ly(dos, x = ~Fakultas, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>% 
+div(plot_ly(data, x = ~Fakultas, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>% 
   add_trace(y = ~Perempuan, name = "Perempuan") %>%
   layout(yaxis = list(title = ' '), barmode = 'group'), align = "center")
 ```
@@ -34,12 +41,12 @@ div(plot_ly(dos, x = ~Fakultas, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Lak
 > Sebaran dosen PNS Universitas Sultan Ageng Tirtayasa berdasarkan jenis kelamin.
 
 ```{r, echo=FALSE, out.width="60%"}
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(JK) %>%
   summarize(banyak = n(), .groups = "drop")
-dos$JK <- c("Laki-Laki", "Perempuan")
+data$JK <- c("Laki-Laki", "Perempuan")
 
-div(plot_ly(type = "pie", labels = dos$JK, values = dos$banyak,
+div(plot_ly(type = "pie", labels = data$JK, values = data$banyak,
         textinfo = "label+percent",
         insidetextorientation = "radial"), align = "center")
 ```
@@ -49,15 +56,15 @@ div(plot_ly(type = "pie", labels = dos$JK, values = dos$banyak,
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(janitor, warn.conflicts = F)
 library(kableExtra, warn.conflicts = F)
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(FAKULTAS, JK) %>%
   summarize(Total = n())
 
-dos <- dos %>%
+data <- data %>%
   pivot_wider(names_from = JK, values_from = Total)
-dos$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dos <- adorn_totals(dos, where = c("row", "col"), name = "Jumlah")
-kable(dos) %>%
+data$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Jenis Kelamin" = 2, " " = 1))
@@ -69,11 +76,11 @@ kable(dos) %>%
 > Sebaran dosen PNS Universitas Sultan Ageng Tirtayasa berdasarkan tingkat pendidikan.
 
 ```{r, echo=FALSE, out.width="60%"}
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(PEND) %>%
   summarize(banyak = n(), .groups = "drop")
 
-div(plot_ly(type = "pie", labels = dos$PEND, values = dos$banyak,
+div(plot_ly(type = "pie", labels = data$PEND, values = data$banyak,
         textinfo = "label+percent",
         insidetextorientation = "radial"), align = "center")
 ```
@@ -81,14 +88,14 @@ div(plot_ly(type = "pie", labels = dos$PEND, values = dos$banyak,
 > Sebaran dosen PNS Universitas Sultan Ageng Tirtayasa berdasarkan tingkat pendidikan di setiap Fakultas.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(FAKULTAS, PEND) %>%
   summarize(Total = n())
-dos <- dos %>%
+data <- data %>%
   pivot_wider(names_from = PEND, values_from = Total)
-dos$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dos <- adorn_totals(dos, where = c("row", "col"), name = "Jumlah")
-kable(dos) %>%
+data$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Pendidikan" = 2, " " = 1))
@@ -100,26 +107,26 @@ kable(dos) %>%
 > Sebaran dosen PNS Universitas Sultan Ageng Tirtayasa berdasarkan golongan.
 
 ```{r, echo=FALSE, out.width="60%"}
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(GOL) %>%
   summarize(total = n(), .groups = "drop")
-names(dos) <- c("Golongan", "total")
-div(plot_ly(dos, x = ~Golongan, y = ~`total`, type = 'bar', name = "") %>%
+names(data) <- c("Golongan", "total")
+div(plot_ly(data, x = ~Golongan, y = ~`total`, type = 'bar', name = "") %>%
   layout(yaxis = list(title = '')), align = "center")
 ```
 
 > Sebaran dosen PNS Universitas Sultan Ageng Tirtayasa berdasarkan golongan di setiap Fakultas
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(FAKULTAS, GOL) %>%
   summarize(Total = n())
-dos <- dos %>%
+data <- data %>%
   pivot_wider(names_from = GOL, values_from = Total)
-dos[is.na(dos)] <- 0
-dos$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dos <- adorn_totals(dos, where = c("col", "row"), name = "Jumlah")
-kable(dos) %>%
+data[is.na(data)] <- 0
+data$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data <- adorn_totals(data, where = c("col", "row"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Golongan" = 9, " " = 1))
@@ -128,14 +135,14 @@ kable(dos) %>%
 > Sebaran dosen PNS Universitas Sultan Ageng Tirtayasa berdasarkan jabatan akademik.
 
 ```{r, echo=FALSE, out.width="60%", fig.align='center'}
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(JABATAN) %>%
   summarize(banyak = n(), .groups = "drop")
 
-dos$JABATAN <- c("Guru Besar", "Lektor Kepala", "Lektor",
+data$JABATAN <- c("Guru Besar", "Lektor Kepala", "Lektor",
                       "Asisten Ahli", "Tenaga Pengajar")
 
-div(plot_ly(type = "pie", labels = dos$JABATAN, values = dos$banyak,
+div(plot_ly(type = "pie", labels = data$JABATAN, values = data$banyak,
         textinfo = "label+percent",
         insidetextorientation = "radial"), align = "center")
 ```
@@ -144,16 +151,16 @@ div(plot_ly(type = "pie", labels = dos$JABATAN, values = dos$banyak,
 > Sebaran dosen PNS Universitas Sultan Ageng Tirtayasa berdasarkan jabatan akademik di setiap Fakultas.
 
 ```{r, echo=FALSE, message=FALSE, warning=TRUE}
-dos <- dosen %>%
+data <- dos_pns %>%
   group_by(FAKULTAS, JABATAN) %>%
   summarize(Total = n())
-dos <- dos %>%
+data <- data %>%
   pivot_wider(names_from = JABATAN, values_from = Total)
-dos[is.na(dos)] <- 0
-names(dos) <- c("Fakultas", "Guru Besar", "Lektor Kepala", "Lektor", "Asisten Ahli", "Tenaga Pengajar")
-dos$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dos <- adorn_totals(dos, where = c("row", "col"), name = "Jumlah")
-kable(dos) %>%
+data[is.na(data)] <- 0
+names(data) <- c("Fakultas", "Guru Besar", "Lektor Kepala", "Lektor", "Asisten Ahli", "Tenaga Pengajar")
+data$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Jabatan Akademik" = 5, " " = 1))
@@ -165,13 +172,13 @@ kable(dos) %>%
 Berikut adalah daftar nama dosen PNS di Universitas Sultan Ageng Tirtayasa.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dos <- dosen[,c(2, 3, 4, 6, 7, 9, 11)]
-names(dos) <- c("Nama", "JK", "Pendidikan", "Gol", "Jabatan",
+data <- dos_pns[,c(2, 3, 4, 6, 7, 9, 11)]
+names(data) <- c("Nama", "JK", "Pendidikan", "Gol", "Jabatan",
                    "Fakultas", "Program Studi")
 #kable(dosen1, longtable = T) %>%
 #  kable_styling(bootstrap_options = "striped", full_width = F,
 #                latex_options = c("scale_down", "repeat_header"))
-DT::datatable(dos)
+DT::datatable(data, rownames = F)
 ```
 
 ## Dosen Tetap non PNS
@@ -179,19 +186,17 @@ DT::datatable(dos)
 > Sebaran lengkap dosen non PNS Universitas Sultan Ageng Tirtayasa di tiap fakultas.
 
 ```{r, echo=FALSE, out.width="60%", message=FALSE, warning=FALSE, fig.align='center'}
-dstkk <- read.csv("static/SDM.csv")
-dstkk <- dstkk %>% filter(STATUS == "Dosen TKK")
-dk <- dstkk %>%
+data <- dos_non %>%
   group_by(JK, FAKULTAS) %>%
   summarize(total = n()) %>%
   pivot_wider(names_from = JK, values_from = total)
-names(dk) <- c("Fakultas", "Laki-Laki", "Perempuan")
-dk$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dk[is.na(dk)] <- 0
+names(data) <- c("Fakultas", "Laki-Laki", "Perempuan")
+data$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data[is.na(data)] <- 0
 ### agar sesuai urutan dibuat faktor dengan level yang berurutan
-dk$Fakultas <- factor(dk$Fakultas, levels = dk[["Fakultas"]])
+data$Fakultas <- factor(data$Fakultas, levels = data[["Fakultas"]])
 
-div(plot_ly(dk, x = ~Fakultas, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>% 
+div(plot_ly(data, x = ~Fakultas, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>% 
   add_trace(y = ~Perempuan, name = "Perempuan") %>%
   layout(yaxis = list(title = ' '), barmode = 'group'), align = "center")
 ```
@@ -199,12 +204,12 @@ div(plot_ly(dk, x = ~Fakultas, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki
 > Sebaran dosen non PNS Universitas Sultan Ageng Tirtayasa berdasarkan jenis kelamin.
 
 ```{r, echo=FALSE, out.width="60%"}
-dk <- dstkk %>%
+data <- dos_non %>%
   group_by(JK) %>%
   summarize(banyak = n(), .groups = "drop")
-dk$JK <- c("Laki-Laki", "Perempuan")
+data$JK <- c("Laki-Laki", "Perempuan")
 
-div(plot_ly(type = "pie", labels = dk$JK, values = dk$banyak,
+div(plot_ly(type = "pie", labels = data$JK, values = data$banyak,
         textinfo = "label+percent",
         insidetextorientation = "radial"), align = "center")
 ```
@@ -212,16 +217,16 @@ div(plot_ly(type = "pie", labels = dk$JK, values = dk$banyak,
 > Sebaran dosen non PNS Universitas Sultan Ageng Tirtayasa berdasarkan jenis kelamin di setiap Fakultas.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-dk <- dstkk %>%
+data <- dos_non %>%
   group_by(FAKULTAS, JK) %>%
   summarize(Total = n())
 
-dk <- dk %>%
+data <- data %>%
   pivot_wider(names_from = JK, values_from = Total)
-dk$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dk[is.na(dk)] <- 0
-dk <- adorn_totals(dk, where = c("row", "col"), name = "Jumlah")
-kable(dk) %>%
+data$FAKULTAS <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data[is.na(data)] <- 0
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Jenis Kelamin" = 2, " " = 1))
@@ -230,12 +235,12 @@ kable(dk) %>%
 > Sebaran dosen non PNS Universitas Sultan Ageng Tirtayasa berdasarkan tingkat pendidikan.
 
 ```{r, echo=FALSE, out.width="60%"}
-dk <- dstkk %>%
+data <- dos_non %>%
   group_by(PENDIDIKAN) %>%
   summarize(banyak = n(), .groups = "drop")
 
-dk$PENDIDIKAN <- c("S3", "S2", "Spesialis", "S1 Profesi")
-div(plot_ly(type = "pie", labels = dk$PENDIDIKAN, values = dk$banyak,
+data$PENDIDIKAN <- c("S3", "S2", "Spesialis", "S1 Profesi")
+div(plot_ly(type = "pie", labels = data$PENDIDIKAN, values = data$banyak,
         textinfo = "label+percent",
         insidetextorientation = "radial"), align = "center")
 ```
@@ -243,16 +248,16 @@ div(plot_ly(type = "pie", labels = dk$PENDIDIKAN, values = dk$banyak,
 > Sebaran dosen non PNS Universitas Sultan Ageng Tirtayasa berdasarkan tingkat pendidikan di setiap Fakultas.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dk <- dstkk %>%
+data <- dos_non %>%
   group_by(FAKULTAS, PENDIDIKAN) %>%
   summarize(Total = n())
-dk <- dk %>%
+data <- data %>%
   pivot_wider(names_from = PENDIDIKAN, values_from = Total)
-names(dk) <- c("Fakultas", "S2", "S3", "Spesialis", "S1 Profesi")
-dk$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dk[is.na(dk)] <- 0
-dk <- adorn_totals(dk, where = c("row", "col"), name = "Jumlah")
-kable(dk) %>%
+names(data) <- c("Fakultas", "S2", "S3", "Spesialis", "S1 Profesi")
+data$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data[is.na(data)] <- 0
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Pendidikan" = 4, " " = 1))
@@ -261,13 +266,13 @@ kable(dk) %>%
 > Sebaran dosen non PNS Universitas Sultan Ageng Tirtayasa berdasarkan jabatan akademik.
 
 ```{r, echo=FALSE, out.width="60%", fig.align='center'}
-dk <- dstkk %>%
+data <- dos_non %>%
   group_by(JABATAN) %>%
   summarize(banyak = n(), .groups = "drop")
 
-dk$JABATAN <- c("Lektor Kepala", "Lektor", "Asisten Ahli", "Tenaga Pengajar")
+data$JABATAN <- c("Lektor", "Asisten Ahli", "Tenaga Pengajar")
 
-div(plot_ly(type = "pie", labels = dk$JABATAN, values = dk$banyak,
+div(plot_ly(type = "pie", labels = data$JABATAN, values = data$banyak,
         textinfo = "label+percent",
         insidetextorientation = "radial"), align = "center")
 ```
@@ -275,29 +280,29 @@ div(plot_ly(type = "pie", labels = dk$JABATAN, values = dk$banyak,
 > Sebaran dosen non PNS Universitas Sultan Ageng Tirtayasa berdasarkan jabatan akademik di setiap Fakultas.
 
 ```{r, echo=FALSE, message=FALSE, warning=TRUE}
-dk <- dstkk %>%
+data <- dos_non %>%
   group_by(FAKULTAS, JABATAN) %>%
   summarize(Total = n())
-dk <- dk %>%
+data <- data %>%
   pivot_wider(names_from = JABATAN, values_from = Total)
-dk[is.na(dk)] <- 0
-names(dk) <- c("Fakultas", "Asisten Ahli", "Tenaga Pengajar", "Lektor", "Lektor Kepala")
-dk$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
-dk <- adorn_totals(dk, where = c("row", "col"), name = "Jumlah")
-kable(dk) %>%
+data[is.na(data)] <- 0
+names(data) <- c("Fakultas", "Asisten Ahli", "Tenaga Pengajar", "Lektor")
+data$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Kedokteran")
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
-  add_header_above(c(" " = 1, "Jabatan Akademik" = 4, " " = 1))
+  add_header_above(c(" " = 1, "Jabatan Akademik" = 3, " " = 1))
 ```
 
 Berikut adalah daftar nama dosen non PNS di Universitas Sultan Ageng Tirtayasa.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dos <- dstkk[,c(2, 3, 4, 7, 9, 11)]
-names(dos) <- c("Nama", "JK", "Pendidikan", "Jabatan",
+data <- dos_non[,c(2, 3, 4, 7, 9, 11)]
+names(data) <- c("Nama", "JK", "Pendidikan", "Jabatan",
                    "Fakultas", "Program Studi")
 #kable(dosen1, longtable = T) %>%
 #  kable_styling(bootstrap_options = "striped", full_width = F,
 #                latex_options = c("scale_down", "repeat_header"))
-DT::datatable(dos)
+DT::datatable(data, rownames = F)
 ```
