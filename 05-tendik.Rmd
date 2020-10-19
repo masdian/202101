@@ -235,7 +235,7 @@ names(data) <- c("Unit Kerja", "Administrasi", "Petugas Kesehatan", "Teknisi", "
 data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
 kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
-                latex_options = "scale_down") %>%
+                latex_options = "scale_down", font_size = 11) %>%
   add_header_above(c(" " = 1, "Jabatan" = 6, " " = 1))
 ```
 
