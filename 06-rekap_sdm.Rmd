@@ -8,30 +8,40 @@ library(plotly)
 library(shiny)
 library(janitor)
 library(kableExtra)
-sdm <- read.csv("static/SDM.csv")
-sdm$STATUS <- factor(sdm$STATUS, levels = c("Dosen PNS", "Dosen TKK",
-                                            "Tendik PNS", "Tendik Non PNS"))
+library(readxl)
+sdm <- NULL
+data <- read_excel("G:/My Drive/# REGISTRASI DAN STATISTIK/Website/202101/202101/static/SDM_dosen_pns.xlsx")
+sdm <- rbind(sdm, data)
+data <- read_excel("G:/My Drive/# REGISTRASI DAN STATISTIK/Website/202101/202101/static/SDM_dosen_non_pns.xlsx")
+sdm <- rbind(sdm, data)
+data <- read_excel("G:/My Drive/# REGISTRASI DAN STATISTIK/Website/202101/202101/static/SDM_tendik_non_pns.xlsx")
+sdm <- rbind(sdm, data)
+data <- read_excel("G:/My Drive/# REGISTRASI DAN STATISTIK/Website/202101/202101/static/SDM_tendik_pns.xlsx")
+sdm <- rbind(sdm, data)
 
-sd <- sdm %>%
+
+sdm$STATUS <- factor(sdm$STATUS, levels = c("Dosen PNS", "Dosen non PNS", "Tendik PNS", "Tendik non PNS"))
+
+data <- sdm %>%
   group_by(JK) %>%
   summarize(banyak = n())
-sd$JK <- c("Laki-Laki", "Perempuan")
+data$JK <- c("Laki-Laki", "Perempuan")
 
-div(plot_ly(type = "pie", labels = sd$JK, values = sd$banyak,
+div(plot_ly(type = "pie", labels = data$JK, values = data$banyak,
         textinfo = "label+percent",
         insidetextorientation = "radial"), align = "center")
 
-sd <- sdm %>%
+data <- sdm %>%
   group_by(STATUS, JK) %>%
   summarize(total = n())
-sd <- sd %>%
+data <- data %>%
   pivot_wider(names_from = JK, values_from = total)
-names(sd) <- c("SDM", "Laki-Laki", "Perempuan")
-sd$SDM <- c("Dosen PNS", "Dosen Non PNS", "Tendik PNS", "Tendik Non PNS")
+names(data) <- c("SDM", "Laki-Laki", "Perempuan")
+data$SDM <- c("Dosen PNS", "Dosen non PNS", "Tendik PNS", "Tendik non PNS")
 
-sd$SDM <- factor(sd$SDM, levels = sd[["SDM"]])
+data$SDM <- factor(data$SDM, levels = data[["SDM"]])
 
-div(plot_ly(sd, x = ~SDM, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>% 
+div(plot_ly(data, x = ~SDM, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>% 
       add_trace(y = ~Perempuan, name = "Perempuan") %>%
       layout(yaxis = list(title = ' '), barmode = 'group'), align = "center")
 ```
@@ -39,18 +49,36 @@ div(plot_ly(sd, x = ~SDM, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>
 > Sebaran SDM berdasarkan tingkat pendidikan
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-sd <- sdm %>%
+data <- sdm %>%
   group_by(PENDIDIKAN, STATUS) %>%
   summarize(total = n())
-sd <- sd %>%
+data <- data %>%
   pivot_wider(names_from = STATUS, values_from = total)
-sd[is.na(sd)] <- 0
-sd$PENDIDIKAN <- c("S3", "S2", "Spesialis", "S1 Profesi", "S1",
+data[is.na(data)] <- 0
+data$PENDIDIKAN <- c("S3", "S2", "Spesialis", "S1 Profesi", "S1",
                    "Diploma", "SLTA", "SLTP", "SD")
-sd <- adorn_totals(sd, where = c("row", "col"), name = "Jumlah")
-kable(sd) %>%
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "SDM" = 4, " " = 1))
 ```
 
+> Sebaran SDM di setiap Unit Kerja
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+data <- sdm %>%
+  group_by(FAKULTAS, STATUS) %>%
+  summarize(total = n())
+data <- data %>%
+  pivot_wider(names_from = STATUS, values_from = total)
+data[is.na(data)] <- 0
+x <- unique(data$FAKULTAS)
+data$FAKULTAS <- gsub('[0-9, "_"]+', '', x)
+names(data) <- c("Unit Kerja", "Dosen PNS", "Dosen non PNS", "Tendik PNS", "Tendik non PNS")
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F,
+                latex_options = "scale_down") %>%
+  add_header_above(c(" " = 1, "SDM" = 4, " " = 1))
+```

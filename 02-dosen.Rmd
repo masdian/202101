@@ -12,7 +12,7 @@ dos_non <- read_excel("G:/My Drive/# REGISTRASI DAN STATISTIK/Website/202101/202
 ```
 
 
-Saat ini Universitas Sultan Ageng Tirtayasa memiliki `r nrow(dos_pns)` dosen tetap PNS dan `r nrow(dos_non)` dosen tetap non PNS yang tersebar di 6 Fakultas. Berikut ini adalah stasitik Dosen tetap PNS dan dosen tetap non PNS di lingkungan Universitas Sultan Ageng Tirtayasa.
+Saat ini Universitas Sultan Ageng Tirtayasa memiliki `r nrow(dos_pns)` dosen tetap PNS dan `r nrow(dos_non)` dosen tetap non PNS yang tersebar di 7 Fakultas. Berikut ini adalah stasitik Dosen tetap PNS dan dosen tetap non PNS di lingkungan Universitas Sultan Ageng Tirtayasa.
 
 ## Dosen PNS
 
