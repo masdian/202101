@@ -227,14 +227,14 @@ Mahasiswa tidak aktif adalah mahasiswa yang tidak melakukan registrasi dan pengi
 > Cuti Kuliah
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-cuti <- read.csv("static/cuti.csv")
-cuti[is.na(cuti)] <- 0
-names(cuti) <- c("Fakultas", "2014", "2015", "2016", "2017", "2018", "2019")
-cuti <- adorn_totals(cuti, where = c("row", "col"), name = "Jumlah")
-kable(cuti) %>%
+data <- read_excel("static/cuti.xlsx")
+data[is.na(data)] <- 0
+data$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Pascasarjana", "Kedokteran")
+data <- adorn_totals(data, where = c("row", "col"), name = "Jumlah")
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
-  add_header_above(c(" " = 1, "Angkatan" = 6, " " = 1))
+  add_header_above(c(" " = 1, "Angkatan" = 5, " " = 1))
 ```
 
 > Dicutikan
