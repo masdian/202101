@@ -25,6 +25,8 @@ library(tidyverse)
 library(janitor)
 library(kableExtra)
 library(readxl)
+library(plotly)
+library(shiny)
 maba <- read_excel("static/maba.xlsx")
 d3 <- nrow(filter(maba, JENJANG == "D3"))
 s1 <- nrow(filter(maba, JENJANG == "S1"))
@@ -156,29 +158,66 @@ kable(pend) %>%
 ## Mahasiswa Aktif
 
 
-> Mahasiswa aktif di semester ganjil Tahun Akademik 2020/2021
+> Mahasiswa aktif di semester ganjil Tahun Akademik 2020/2021 per Fakultas
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-aktif <- read.csv("static/aktif.csv")
-library(kableExtra)
-library(janitor)
-names(aktif) <- c("Fakultas", "2013", "2014", "2015", "2016", "2017",
-                  "2018", "2019")
-aktif[is.na(aktif)] <- 0
-aktif <- adorn_totals(aktif, where = c("col", "row"), name = "Jumlah")
-kable(aktif) %>%
+aktif <- read_excel("static/aktif.xlsx")
+
+data <- aktif %>%
+  group_by(Jk, fak_order) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = Jk, values_from = n)
+
+names(data) <- c("Fakultas", "Laki-Laki", "Perempuan")
+data$Fakultas <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Pascasarjana", "Kedokteran")
+### agar sesuai urutan dibuat faktor dengan level yang berurutan
+data$Fakultas <- factor(data$Fakultas, levels = data[["Fakultas"]])
+
+div(plot_ly(data, x = ~Fakultas, y = ~`Laki-Laki`, type = 'bar', name = "Laki-Laki") %>% 
+  add_trace(y = ~Perempuan, name = "Perempuan") %>%
+  layout(yaxis = list(title = ' '), barmode = 'group'), align = "center")
+
+
+data <- aktif %>%
+  group_by(fak_order, Angkatan) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = Angkatan, values_from = n)
+
+data[is.na(data)] <- 0
+data$fak_order <- c("Hukum", "FKIP", "Teknik", "Pertanian", "FEB", "FISIP", "Pascasarjana", "Kedokteran")
+colnames(data)[1] <- "Fakultas"
+data <- adorn_totals(data, where = c("col", "row"), name = "Jumlah")
+
+kable(data) %>%
   kable_styling(bootstrap_options = "striped", full_width = F,
                 latex_options = "scale_down") %>%
-  add_header_above(c(" " = 1, "Angkatan" = 7, " " = 1)) %>%
-  pack_rows("Pascasarjana", 1, 11, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Hukum", 12, 12, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Keguruan dan Ilmu Pendidikan", 13, 30, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Teknik", 31, 36, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Pertanian", 37, 40, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Ekonomi dan Bisnis", 41, 48, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Ilmu Sosial dan Ilmu Politik", 49, 51, label_row_css = "background-color: #666; color: #fff;") %>%
-  pack_rows("Kedokteran", 52, 55, label_row_css = "background-color: #666; color: #fff;")
+  add_header_above(c(" " = 1, "Angkatan" = 7, " " = 1))
+```
+> Mahasiswa aktif di semester ganjil Tahun Akademik 2020/2021 per Program Studi
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+data <- aktif %>%
+  group_by(fak_order, Prodi, Jenjang, Angkatan) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = Angkatan, values_from = n)
+
+data <- data[, -1]
+data[is.na(data)] <- 0
+colnames(data)[1] <- "Program Studi"
+data <- adorn_totals(data, where = c("col", "row"), name = "Jumlah")
+
+kable(data) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F,
+                latex_options = "scale_down", font_size = 12) %>%
+  add_header_above(c(" " = 2, "Angkatan" = 7, " " = 1)) %>%
+  pack_rows("Hukum", 1, 1, label_row_css = "background-color: #666; color: #fff;") %>%
+  pack_rows("FKIP", 2, 19, label_row_css = "background-color: #666; color: #fff;") %>%
+  pack_rows("Teknik", 20, 25, label_row_css = "background-color: #666; color: #fff;") %>%
+  pack_rows("Pertanian", 26, 29, label_row_css = "background-color: #666; color: #fff;") %>%
+  pack_rows("FEB", 30, 37, label_row_css = "background-color: #666; color: #fff;") %>%
+  pack_rows("FISIP", 38, 40, label_row_css = "background-color: #666; color: #fff;") %>%
+  pack_rows("Pascasarjana", 41, 52, label_row_css = "background-color: #666; color: #fff;") %>%
+  pack_rows("Kedokteran", 53, 57, label_row_css = "background-color: #666; color: #fff;")
 ```
 
 ## Mahasiswa tidak aktif
