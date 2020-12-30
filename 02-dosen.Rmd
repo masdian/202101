@@ -19,8 +19,6 @@ Saat ini Universitas Sultan Ageng Tirtayasa memiliki `r nrow(dos_pns)` dosen tet
 > Sebaran lengkap dosen PNS Universitas Sultan Ageng Tirtayasa di tiap fakultas.
 
 ```{r, echo=FALSE, out.width="60%", message=FALSE, warning=FALSE, fig.align='center'}
-sdm <- read.csv("static/SDM.csv")
-dosen <- filter(sdm, STATUS == "Dosen PNS")
 data <- dos_pns %>%
   group_by(JK, FAKULTAS) %>%
   summarize(total = n()) %>%
