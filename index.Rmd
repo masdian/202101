@@ -1,4 +1,4 @@
---- 
+---
 title: 'Untirta dalam Angka: semester ganjil TA 2020/2021'
 author: "oleh Subbagian Registrasi dan Statistik"
 date: "`r Sys.Date()`"
@@ -37,6 +37,20 @@ s3 <- nrow(filter(maba, JENJANG == "S3"))
 ```
 
 Tahun 2020 Universitas Sultan Ageng Tirtayasa secara resmi menerima `r nrow(maba)` mahasiswa baru terdiri atas `r d3` mahasiswa D3, `r s1` mahasiswa S1, `r s2` mahasiswa S2, dan `r s3` mahasiswa S3. Berikut adalah statistik mahasiswa baru Universitas Sultan Ageng Tirtayasa tahun akademik 2020/2021.
+
+> Mahasiswa Baru Berdasarkan Jenjang Studi
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+js <- maba %>%
+  group_by(JENJANG, JK) %>%
+  summarize(total = n()) %>%
+  pivot_wider(names_from = JENJANG, values_from = total)
+names(js) <- c("Jenis Kelamin", "Diploma 3", "Strata 1", "Strata 2", "Strata 3")
+js <- adorn_totals(js, where = c("col", "row"), name = "Jumlah")
+kable(js) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F) %>%
+  add_header_above(c(" " = 1, "Jenjang Studi" = 4, " " = 1))
+```
 
 > Mahasiswa Baru Berdasarkan Jalur Masuk dan Jenis Kelamin.
 
@@ -135,7 +149,6 @@ kable(eko) %>%
   add_header_above(c(" " = 1, "Jalur Masuk" = 6, " " = 1))
 ```
 
-
 > Mahasiswa Baru (D3 dan S1) Berdasarkan Jalur Masuk dan Pendidikan Terakhir Orang Tua.
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
@@ -157,11 +170,25 @@ kable(pend) %>%
 
 ## Mahasiswa Aktif
 
+> Mahasiswa aktif di semester ganjil Tahun Akademik 2020/2021 di setiap jenjang studi
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+aktif <- read_excel("static/aktif.xlsx")
+
+data <- aktif %>%
+  group_by(Jenjang, Jk) %>%
+  summarize(total = n()) %>%
+  pivot_wider(names_from = Jenjang, values_from = total)
+names(data) <- c("Jenis Kelamin", "Diploma 3", "Strata 1", "Strata 2", "Strata 3")
+data <- adorn_totals(data, where = c("col", "row"), name = "Jumlah")
+kable(data) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F) %>%
+  add_header_above(c(" " = 1, "Jenjang Studi" = 4, " " = 1))
+```
 
 > Mahasiswa aktif di semester ganjil Tahun Akademik 2020/2021 per Fakultas
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-aktif <- read_excel("static/aktif.xlsx")
 
 data <- aktif %>%
   group_by(Jk, fak_order) %>%
@@ -193,6 +220,7 @@ kable(data) %>%
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Angkatan" = 7, " " = 1))
 ```
+
 > Mahasiswa aktif di semester ganjil Tahun Akademik 2020/2021 per Program Studi
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -249,6 +277,3 @@ kable(cutikan) %>%
                 latex_options = "scale_down") %>%
   add_header_above(c(" " = 1, "Angkatan" = 7, " " = 1))
 ```
-
-
-

@@ -8,7 +8,7 @@ bookdown::gitbook:
         <li><a href="./">Untirta dalam Angka</a></li>
       after: |
         <li><a href="mailto:registrasi@untirta.ac.id" target="blank">Hubungi Kami</a></li>
-    download: ["pdf", "epub"]
+#    download: ["pdf", "epub"]
 bookdown::pdf_book:
   includes:
     in_header: preamble.tex
